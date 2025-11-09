@@ -1,19 +1,69 @@
-#!/usr/bin/env bash
-# Update package lists
+#!/bin/bash
+
+# Script: 1-install_nginx_web_server
+# Description: Installs and configures Nginx web server on Ubuntu
+
+# Update package list
 apt-get update -y
 
-# Install nginx with -y flag to automatically confirm
+# Install nginx with automatic yes to prompts
 apt-get install nginx -y
 
-# Create custom HTML page with required string
-echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
+# Create custom HTML content with "Holberton School"
+cat > /var/www/html/index.nginx-debian.html << EOF
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Holberton School for the win!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+EOF
 
 # Ensure nginx is configured to listen on port 80 (default)
-# Restart nginx without using systemctl
-service nginx restart
+# Check if nginx is running and start it if not
+if ! pgrep -x "nginx" > /dev/null; then
+	    # Start nginx service
+	        service nginx start
+	else
+		    # Restart nginx without using systemctl
+		        service nginx restart
+fi
 
-# Check if nginx is running on port 80
-netstat -lnt | grep ':80 '
+# Enable nginx to start automatically on boot
+update-rc.d nginx defaults
 
-# The script should now be ready - nginx will serve "Holberton School for the win!" on port 80
+# Verify nginx is running and listening on port 80
+echo "Checking if nginx is running on port 80..."
+netstat -tulpn | grep :80
+
+# Test the configuration with curl
+echo "Testing with curl..."
+curl -s localhost | grep -q "Holberton School"
+if [ $? -eq 0 ]; then
+	    echo "Success: Nginx is serving the correct content"
+    else
+	        echo "Error: Nginx content verification failed"
+		    exit 1
+fi
+
+echo "Nginx installation and configuration completed successfully!"
 
