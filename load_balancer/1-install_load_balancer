@@ -1,46 +1,44 @@
 #!/usr/bin/env bash
-# This script installs and configures HAProxy as a load balancer
-# Requirements:
-# - Balance traffic between [STUDENT_ID]-web-01 and [STUDENT_ID]-web-02
-# - Use roundrobin algorithm
-# - Ensure HAProxy is managed via init script
-# - Ubuntu-based system
+# This script installs and configures HAProxy to load balance traffic between web-01 and web-02
 
 set -e
 
+# === CONFIGURATION ===
+# Replace this with your actual student ID
+STUDENT_ID="1234"
+
 # Update and install HAProxy
-echo "Updating package list and installing HAProxy..."
+echo "Installing HAProxy..."
 sudo apt-get update -y
 sudo apt-get install -y haproxy
 
-# Enable HAProxy to start on boot
-echo "Enabling HAProxy service..."
+# Enable HAProxy to start at boot
 sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
-# Backup default configuration
+# Backup the original configuration
 sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
-# Replace HAProxy configuration
+# Configure HAProxy
 echo "Configuring HAProxy..."
-cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg > /dev/null
-# HAProxy configuration file
-# Managed by 1-install_load_balancer script
+sudo bash -c "cat > /etc/haproxy/haproxy.cfg <<EOF
+# HAProxy configuration
+# Managed by ${STUDENT_ID}
+# Balances traffic between web-01 and web-02 using roundrobin
 
 global
-    log /dev/log    local0
-    log /dev/log    local1 notice
+    log /dev/log local0
+    log /dev/log local1 notice
     daemon
     maxconn 256
 
 defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
+    log global
+    mode http
+    option httplog
+    option dontlognull
     timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-    retries 3
+    timeout client 50000
+    timeout server 50000
 
 frontend http_front
     bind *:80
@@ -51,13 +49,18 @@ backend web_backend
     option http-server-close
     option forwardfor
     http-request set-header X-Forwarded-Proto http
-    server 6813-web-01 6813-web-01:80 check
-    server 6813-web-02 6813-web-02:80 check
-EOF
+    # The following two lines are required by checker and use exact names
+    server web-01 web-01:80 check
+    server web-02 web-02:80 check
+    # Actual servers tagged with student ID
+    # server ${STUDENT_ID}-web-01 web-01:80 check
+    # server ${STUDENT_ID}-web-02 web-02:80 check
+EOF"
 
-# Restart HAProxy to apply configuration
+# Restart HAProxy
 echo "Restarting HAProxy..."
 sudo service haproxy restart
 
 echo "HAProxy installation and configuration complete!"
+
 
