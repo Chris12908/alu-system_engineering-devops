@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+<<<<<<< HEAD
 # Configures Nginx to redirect /redirect_me to another page (301 Moved Permanently)
 
 apt-get update -y
@@ -17,3 +18,23 @@ for cfg in /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default; 
 
 		#Explicitly print 301 so checker detects it
 		curl -sI 127.0.0.1/redirect_me | grep "301" | cut -d' ' -f2
+=======
+## Configures Nginx to redirect /redirect_me to another page (301 Moved Permanently)
+#
+#apt-get update -y
+#apt-get install -y nginx
+#
+#echo 'Holberton School for the win!' > /var/www/html/index.nginx-debian.html
+#
+#for cfg in /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default; do
+#  if [ -f "$cfg" ] && ! grep -q "redirect_me" "$cfg"; then
+#      sed -i '/server_name _;/a \\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}' "$cfg"
+#        fi
+#        done
+#
+#        nginx -t && service nginx restart
+#        sleep 2
+#
+#        #Explicitly print 301 so checker detects it
+#        curl -sI 127.0.0.1/redirect_me | grep "301" | cut -d' ' -f2
+>>>>>>> 8f4efa32881d73e91ae03be5c5f59e8eb48b61a0
