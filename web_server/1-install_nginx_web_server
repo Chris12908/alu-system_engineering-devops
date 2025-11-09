@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# Script to install and configure Nginx to serve a simple page containing "Holberton School"
-
-# Exit immediately if a command exits with a non-zero status
-set -e
-
-# Update package list and install nginx
+# Update package lists
 apt-get update -y
+
+# Install nginx with -y flag to automatically confirm
 apt-get install nginx -y
 
-# Make sure Nginx is running
-service nginx start
-
-# Create a custom HTML page that contains the text "Holberton School"
+# Create custom HTML page with required string
 echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
 
+# Ensure nginx is configured to listen on port 80 (default)
 # Restart nginx without using systemctl
 service nginx restart
 
+# Check if nginx is running on port 80
+netstat -lnt | grep ':80 '
+
+# The script should now be ready - nginx will serve "Holberton School for the win!" on port 80
 
